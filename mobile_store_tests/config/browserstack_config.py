@@ -6,9 +6,10 @@
 import os 
 from dotenv import load_dotenv
 
-
+load_dotenv()
 BROWSERSTACK_USERNAME = os.getenv('USER_NAME')
 BROWSERSTACK_ACCESS_KEY = os.getenv('ACCESS_KEY')
+print(f"here inside the config , loading the environment variables {BROWSERSTACK_USERNAME} and {BROWSERSTACK_ACCESS_KEY}")
 
 def get_browserstack_capabilities(test_name):
     return {
