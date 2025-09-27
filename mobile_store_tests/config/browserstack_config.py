@@ -1,14 +1,11 @@
-
-
-
-# This file tells BrowserStack how to run your tests
-
 import os 
 from dotenv import load_dotenv
 
 load_dotenv()
-BROWSERSTACK_USERNAME = os.getenv('USER_NAME')
-BROWSERSTACK_ACCESS_KEY = os.getenv('ACCESS_KEY')
+BROWSERSTACK_USERNAME = "pranavsrinivas_EvYlkc"
+BROWSERSTACK_ACCESS_KEY = "nzxbAX2DZJPYsAHysRMS"
+BROWSERSTACK_URL = f"https://{BROWSERSTACK_USERNAME}:{BROWSERSTACK_ACCESS_KEY}@hub.browserstack.com/wd/hub"
+
 print(f"here inside the config , loading the environment variables {BROWSERSTACK_USERNAME} and {BROWSERSTACK_ACCESS_KEY}")
 
 def get_browserstack_capabilities(test_name):

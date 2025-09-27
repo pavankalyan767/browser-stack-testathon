@@ -1,26 +1,31 @@
+# mobile_store_tests/pages/cart_page.py
+
 from selenium.webdriver.common.by import By
-from .base_page import BasePage
+from pages.base_page import BasePage
 
 class CartPage(BasePage):
-    # Locators - UPDATE THESE
-    CART_ITEMS = (By.CLASS_NAME, "cart-item")
-    CHECKOUT_BTN = (By.XPATH, "//button[contains(text(),'Checkout')]")
-    REMOVE_BTN = (By.CLASS_NAME, "remove-item")
-    QUANTITY_INPUT = (By.NAME, "quantity")
-    
-    def get_item_count(self):
-        """Get number of items in cart"""
-        items = self.driver.find_elements(*self.CART_ITEMS)
-        return len(items)
-    
-    def proceed_to_checkout(self):
-        """Click checkout button"""
-        self.click(self.CHECKOUT_BTN)
-    
-    def remove_first_item(self):
-        """Remove the first item from cart"""
-        if self.get_item_count() > 0:
-            remove_buttons = self.driver.find_elements(*self.REMOVE_BTN)
-            remove_buttons[0].click()
-            return True
-        return False
+    """Page Object for the Cart view."""
+
+    # --- Locators ---
+    CHECKOUT_BUTTON = (By.CLASS_NAME, "buy-btn")
+    SUBTOTAL_VALUE = (By.CLASS_NAME, "sub-price__val")
+    EMPTY_CART_MESSAGE = (By.CLASS_NAME, "shelf-empty")
+
+    # --- Initializer ---
+    def __init__(self, driver):
+        super().__init__(driver)
+
+    # --- Page Actions ---
+    def get_subtotal(self) -> float:
+        """Returns the cart subtotal as a float."""
+        text = self.get_element_text(self.SUBTOTAL_VALUE)
+        # Assuming the text is something like "$ 10.90", remove non-numeric characters
+        return float(''.join(c for c in text if c.isdigit() or c == '.'))
+
+    def is_cart_empty(self) -> bool:
+        """Checks if the 'cart is empty' message is visible."""
+        return self.is_element_visible(self.EMPTY_CART_MESSAGE)
+
+    def click_checkout(self):
+        """Clicks the checkout button."""
+        self.do_click(self.CHECKOUT_BUTTON)

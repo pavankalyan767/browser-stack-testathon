@@ -1,75 +1,46 @@
+# mobile_store_tests/tests/critical/test_checkout_flow.py
+
 import pytest
 from pages.home_page import HomePage
 from pages.cart_page import CartPage
+from pages.signin import SignInPage
 from pages.checkout_page import CheckoutPage
 from config.test_data import TestData
 
+@pytest.mark.usefixtures("driver")
 class TestCheckoutFlow:
-    def test_happy_path_single_item(self, browser):
-        """Happy Path: Add 1 item → Checkout → Success"""
-        home_page = HomePage(browser)
-        cart_page = CartPage(browser)
-        checkout_page = CheckoutPage(browser)
+
+    def test_happy_path_checkout(self):
+        """
+        Tests the full checkout flow: Add item -> Go to cart -> Login -> Fill shipping.
+        """
+        # 1. Add an item to the cart from the home page
+        home_page = HomePage(self.driver)
+        home_page.add_first_item_to_cart()
+        home_page.open_cart()
+
+        # 2. Click checkout from the cart view
+        cart_page = CartPage(self.driver)
+        cart_page.click_checkout()
+
+        # 3. On the Sign In page, log in with a valid user
+        signin_page = SignInPage(self.driver)
+        signin_page.login(TestData.VALID_USER, TestData.VALID_PASSWORD)
+
+        # 4. On the Checkout page, fill shipping info and submit
+        checkout_page = CheckoutPage(self.driver)
+        assert "checkout" in self.driver.current_url, "Did not redirect to checkout after login"
         
-        # 1. Add item to cart
-        assert home_page.add_first_product_to_cart(), "Failed to add product to cart"
-        
-        # 2. Verify cart count
-        cart_count = home_page.get_cart_count()
-        assert cart_count == "1", f"Expected cart count 1, got {cart_count}"
-        
-        # 3. Go to cart and checkout
-        home_page.go_to_cart()
-        cart_page.proceed_to_checkout()
-        
-        # 4. Fill and submit checkout form
-        checkout_page.fill_address_form(TestData.VALID_ADDRESS)
-        checkout_page.submit_order()
-        
-        # 5. Verify success
-        assert checkout_page.is_order_successful(), "Order confirmation not shown"
-        print("✅ Happy path test PASSED - Single item checkout successful")
-    
-    def test_happy_path_multiple_items(self, browser):
-        """Happy Path: Add 2 items from different vendors → Checkout"""
-        home_page = HomePage(browser)
-        cart_page = CartPage(browser)
-        checkout_page = CheckoutPage(browser)
-        
-        # 1. Add first item
-        assert home_page.add_first_product_to_cart(), "Failed to add first product"
-        
-        # 2. Add second item from different vendor
-        assert home_page.add_product_by_vendor("Samsung"), "Failed to add Samsung product"
-        
-        # 3. Verify cart has 2 items
-        cart_count = home_page.get_cart_count()
-        assert cart_count == "2", f"Expected cart count 2, got {cart_count}"
-        
-        # 4. Complete checkout
-        home_page.go_to_cart()
-        cart_page.proceed_to_checkout()
-        checkout_page.fill_address_form(TestData.VALID_ADDRESS)
-        checkout_page.submit_order()
-        
-        assert checkout_page.is_order_successful(), "Multi-item order failed"
-        print("✅ Happy path test PASSED - Multi-item checkout successful")
-    
-    def test_sad_path_empty_fields(self, browser):
-        """Sad Path: Try checkout with empty required fields"""
-        home_page = HomePage(browser)
-        cart_page = CartPage(browser)
-        checkout_page = CheckoutPage(browser)
-        
-        # 1. Add item and go to checkout
-        home_page.add_first_product_to_cart()
-        home_page.go_to_cart()
-        cart_page.proceed_to_checkout()
-        
-        # 2. Try to submit without filling form
-        checkout_page.submit_order()
-        
-        # 3. Verify error message
-        error_message = checkout_page.get_error_message()
-        assert error_message is not None, "Expected error message for empty form"
-        print("✅ Sad path test PASSED - Form validation working")
+        checkout_page.fill_shipping_and_submit(
+            TestData.SHIPPING_FIRST_NAME,
+            TestData.SHIPPING_LAST_NAME,
+            TestData.SHIPPING_ADDRESS,
+            TestData.SHIPPING_STATE,
+            TestData.SHIPPING_POSTAL_CODE
+        )
+
+        # 5. Assert that the order was successful
+        # This final step depends on your site's confirmation page.
+        # This example checks for a confirmation heading.
+        confirmation_message = checkout_page.get_confirmation_header()
+        assert "Thank you" in confirmation_message, "Order confirmation message not found."
