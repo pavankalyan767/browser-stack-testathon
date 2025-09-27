@@ -1,15 +1,10 @@
-# All the data your tests will use
 class TestData:
-    # Login credentials (provided by testathon)
-    USERNAME = "testuser"
-    PASSWORD = "testpass"
-    
-    # Address for checkout
+    # Since we're pre-logged in, just need address data
     VALID_ADDRESS = {
-        "first_name": "John",
-        "last_name": "Doe", 
-        "address": "123 Main St",
-        "state": "CA",
+        "first_name": "Test",
+        "last_name": "User",
+        "address": "123 Main St", 
+        "state": "California",
         "zip_code": "94105"
     }
     

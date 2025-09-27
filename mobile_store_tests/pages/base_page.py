@@ -1,6 +1,28 @@
-# Contains reusable methods for all pages
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.by import By
+
 class BasePage:
-    def click(self, locator): pass           # Click any element
-    def enter_text(self, locator, text): pass # Type into fields
-    def get_text(self, locator): pass        # Get text from elements
-    # These methods handle waiting and error handling for you
+    def __init__(self, driver):
+        self.driver = driver
+        self.wait = WebDriverWait(driver, 10)
+    
+    def click(self, locator):
+        element = self.wait.until(EC.element_to_be_clickable(locator))
+        element.click()
+    
+    def enter_text(self, locator, text):
+        element = self.wait.until(EC.visibility_of_element_located(locator))
+        element.clear()
+        element.send_keys(text)
+    
+    def get_text(self, locator):
+        element = self.wait.until(EC.visibility_of_element_located(locator))
+        return element.text
+    
+    def is_element_visible(self, locator):
+        try:
+            element = self.wait.until(EC.visibility_of_element_located(locator))
+            return True
+        except:
+            return False
